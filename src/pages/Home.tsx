@@ -93,7 +93,7 @@ const Home: React.FC = () => {
             <div>
               <span className="text-orange-500 text-[10px] font-bold uppercase tracking-widest mb-4 block">Próximas Fronteiras</span>
               <h2 className="text-4xl md:text-6xl font-light tracking-tighter text-zinc-900 uppercase italic">
-                Destinos <span className="font-bold underline decoration-orange-500">Curados</span>
+                Destinos <span className="font-bold underline decoration-orange-500">Inspiradores</span>
               </h2>
             </div>
             <Link to="/destinos" className="text-sm font-bold uppercase tracking-widest text-zinc-500 hover:text-orange-500 transition-colors flex items-center gap-2">
