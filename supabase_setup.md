@@ -77,6 +77,7 @@ CREATE POLICY "Visitantes podem inserir contatos" ON public.contacts FOR INSERT 
 CREATE POLICY "Admins podem tudo em destinos" ON public.destinations FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Admins podem tudo em expedições" ON public.expeditions FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Admins podem ler contatos" ON public.contacts FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Admins podem deletar contatos" ON public.contacts FOR DELETE TO authenticated USING (true);
 CREATE POLICY "Admins podem tudo em admins" ON public.admins FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- 6. Habilitar Realtime

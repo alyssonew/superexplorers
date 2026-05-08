@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { Compass, Calendar, MapPin, Loader2, ArrowRight, Bed, Navigation } from 'lucide-react';
+import { Compass, Calendar, MapPin, Loader2, Bed, Navigation, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 
@@ -17,9 +17,117 @@ interface Expedition {
   totalNights?: number;
 }
 
+// Lightbox Component
+const Lightbox: React.FC<{
+  images: string[];
+  initialIndex: number;
+  hotelName: string;
+  onClose: () => void;
+}> = ({ images, initialIndex, hotelName, onClose }) => {
+  const [current, setCurrent] = useState(initialIndex);
+
+  const prev = useCallback(() => setCurrent(i => (i - 1 + images.length) % images.length), [images.length]);
+  const next = useCallback(() => setCurrent(i => (i + 1) % images.length), [images.length]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose, prev, next]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-sky-950/95 backdrop-blur-md p-4"
+      onClick={onClose}
+    >
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-4 z-10">
+        <div>
+          <p className="text-orange-500 text-[10px] font-bold uppercase tracking-widest">Fotos do Hotel</p>
+          <h3 className="text-white font-bold text-lg">{hotelName}</h3>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sky-300 text-sm font-bold">{current + 1} / {images.length}</span>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+          >
+            <X size={24} />
+          </button>
+        </div>
+      </div>
+
+      {/* Image */}
+      <motion.div
+        key={current}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.25 }}
+        className="relative max-w-5xl w-full max-h-[75vh] flex items-center justify-center"
+        onClick={e => e.stopPropagation()}
+      >
+        <img
+          src={images[current]}
+          alt={`${hotelName} - foto ${current + 1}`}
+          className="max-w-full max-h-[75vh] object-contain rounded-3xl shadow-2xl"
+        />
+      </motion.div>
+
+      {/* Navigation arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={e => { e.stopPropagation(); prev(); }}
+            className="absolute left-4 md:left-8 p-3 rounded-full bg-white/10 text-white hover:bg-orange-500 transition-all backdrop-blur-sm"
+          >
+            <ChevronLeft size={28} />
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); next(); }}
+            className="absolute right-4 md:right-8 p-3 rounded-full bg-white/10 text-white hover:bg-orange-500 transition-all backdrop-blur-sm"
+          >
+            <ChevronRight size={28} />
+          </button>
+        </>
+      )}
+
+      {/* Thumbnails */}
+      {images.length > 1 && (
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 px-6" onClick={e => e.stopPropagation()}>
+          <div className="flex gap-2 overflow-x-auto max-w-full pb-1">
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                  i === current ? 'border-orange-500 opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
+                }`}
+              >
+                <img src={img} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
 const Expeditions: React.FC = () => {
   const [expeditions, setExpeditions] = useState<Expedition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number; hotelName: string } | null>(null);
+
+  const openLightbox = (images: string[], index: number, hotelName: string) => {
+    setLightbox({ images, index, hotelName });
+  };
 
   useEffect(() => {
     const fetchExpeditions = async () => {
@@ -129,14 +237,27 @@ const Expeditions: React.FC = () => {
                         {exp.hotelImages && exp.hotelImages.length > 0 && (
                           <div className="grid grid-cols-3 gap-2 mt-4">
                             {exp.hotelImages.slice(0, 3).map((img, i) => (
-                              <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group/img">
-                                <img src={img} alt="Hotel" className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500" />
+                              <button
+                                key={i}
+                                onClick={() => openLightbox(exp.hotelImages!, i, exp.hotelName!)}
+                                className="aspect-square rounded-2xl overflow-hidden relative group/img cursor-zoom-in"
+                              >
+                                <img
+                                  src={img}
+                                  alt="Hotel"
+                                  className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-500"
+                                />
+                                {/* Overlay on hover */}
+                                <div className="absolute inset-0 bg-sky-950/0 group-hover/img:bg-sky-950/40 transition-all flex items-center justify-center">
+                                  <ZoomIn size={20} className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity" />
+                                </div>
+                                {/* +N badge on last visible */}
                                 {i === 2 && exp.hotelImages!.length > 3 && (
-                                  <div className="absolute inset-0 bg-sky-950/60 flex items-center justify-center text-white font-bold">
+                                  <div className="absolute inset-0 bg-sky-950/60 flex items-center justify-center text-white font-bold text-lg">
                                     +{exp.hotelImages!.length - 3}
                                   </div>
                                 )}
-                              </div>
+                              </button>
                             ))}
                           </div>
                         )}
@@ -164,6 +285,18 @@ const Expeditions: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightbox && (
+          <Lightbox
+            images={lightbox.images}
+            initialIndex={lightbox.index}
+            hotelName={lightbox.hotelName}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
