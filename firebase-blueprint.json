@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "Destination": {
+      "title": "Destination",
+      "description": "A travel destination offered by SuperExplorers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "description": "Name of the destination" },
+        "description": { "type": "string", "description": "Long description of the place" },
+        "excerpt": { "type": "string", "description": "Short summary for cards" },
+        "category": { "type": "string", "enum": ["Culture", "Safari", "Mountain", "Beach", "Arctic"] },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "gallery": { "type": "array", "items": { "type": "string" } },
+        "featured": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "category", "imageUrl"]
+    },
+    "Expedition": {
+      "title": "Expedition",
+      "description": "A specific planned expedition trip.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "destinationId": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "price": { "type": "number" },
+        "status": { "type": "string", "enum": ["upcoming", "active", "completed"] },
+        "highlights": { "type": "array", "items": { "type": "string" } },
+        "imageUrl": { "type": "string", "format": "uri" }
+      },
+      "required": ["title", "destinationId", "startDate", "endDate", "status"]
+    },
+    "Contact": {
+      "title": "Contact",
+      "description": "Contact form submissions.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Administrative users.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["superadmin", "editor"] }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "destinations": {
+      "schema": "Destination",
+      "description": "Collection of available travel destinations."
+    },
+    "expeditions": {
+      "schema": "Expedition",
+      "description": "Collection of specific expeditions."
+    },
+    "contacts": {
+      "schema": "Contact",
+      "description": "Contact form messages from users."
+    },
+    "admins": {
+      "schema": "Admin",
+      "description": "Users with administrative privileges."
+    }
+  }
+}

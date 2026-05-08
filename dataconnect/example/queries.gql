@@ -1,0 +1,55 @@
+query ListAllDestinations @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it lists general destination information.") {
+  destinations {
+    id
+    name
+    country
+    imageUrl
+  }
+}
+
+query GetItineraryDetails($itineraryId: UUID!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users and requires an itinerary ID.") {
+  itinerary(id: $itineraryId) {
+    id
+    name
+    startDate
+    endDate
+    description
+    user {
+      displayName
+    }
+    itineraryActivities_on_itinerary {
+      activity {
+        name
+        price
+        duration
+      }
+      scheduledDate
+      scheduledTime
+      notes
+    }
+  }
+}
+
+mutation CreateNewActivity($name: String!, $destinationId: UUID!, $price: Float!, $createdAt: Timestamp!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users for creating new activities.") {
+  activity_insert(data: {
+    name: $name,
+    destinationId: $destinationId,
+    price: $price,
+    createdAt: $createdAt
+  }) {
+    id
+  }
+}
+
+mutation BookItinerary($itineraryId: UUID!, $bookingDate: Date!, $status: String!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users and creates a booking for an itinerary.") {
+  booking_insert(data: {
+    itineraryId: $itineraryId,
+    userId_expr: "auth.uid",
+    bookingDate: $bookingDate,
+    status: $status,
+    createdAt_expr: "request.time",
+    updatedAt_expr: "request.time"
+  }) {
+    id
+  }
+}

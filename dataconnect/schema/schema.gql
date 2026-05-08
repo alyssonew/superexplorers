@@ -1,0 +1,53 @@
+type User @table {
+  displayName: String!
+  createdAt: Timestamp!
+  email: String
+  photoUrl: String
+  isTravelAgent: Boolean
+}
+
+type Destination @table {
+  name: String!
+  country: String!
+  createdAt: Timestamp!
+  description: String
+  imageUrl: String
+}
+
+type Activity @table {
+  destination: Destination!
+  name: String!
+  price: Float!
+  createdAt: Timestamp!
+  description: String
+  duration: Int
+  imageUrl: String
+}
+
+type Itinerary @table {
+  user: User!
+  name: String!
+  startDate: Date!
+  endDate: Date!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+}
+
+type ItineraryActivity @table(key: ["itinerary", "activity", "scheduledDate", "scheduledTime"]) {
+  itinerary: Itinerary!
+  activity: Activity!
+  scheduledDate: Date!
+  scheduledTime: String!
+  notes: String
+}
+
+type Booking @table {
+  user: User!
+  itinerary: Itinerary!
+  bookingDate: Date!
+  status: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  agentNotes: String
+}

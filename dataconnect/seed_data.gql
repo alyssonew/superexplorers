@@ -1,0 +1,90 @@
+mutation CreateDemoData @transaction @auth(level: USER, insecureReason: "This is a seed data mutation and is safe to run for any logged-in user.") {
+  user_insertMany(data: [
+    {
+      id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      displayName: "Alice Wonderland",
+      email: "alice@example.com",
+      createdAt: "2023-01-01T10:00:00Z",
+      isTravelAgent: false
+    },
+    {
+      id: "b1cffb00-a1c0-5ef9-cc7e-7cc0ce491b22",
+      displayName: "Bob The Builder",
+      email: "bob@example.com",
+      createdAt: "2023-01-02T11:00:00Z",
+      isTravelAgent: true
+    }
+  ])
+  destination_insertMany(data: [
+    {
+      id: "c2dggc11-b2d1-6ef0-dd8f-8dd1df502c33",
+      name: "Paris",
+      country: "France",
+      description: "The city of love.",
+      imageUrl: "https://example.com/paris.jpg",
+      createdAt: "2023-01-03T12:00:00Z"
+    },
+    {
+      id: "d3ehhd22-c3e2-7ef1-ee9g-9ee2eg613d44",
+      name: "Tokyo",
+      country: "Japan",
+      description: "A vibrant metropolis.",
+      imageUrl: "https://example.com/tokyo.jpg",
+      createdAt: "2023-01-04T13:00:00Z"
+    }
+  ])
+  activity_insertMany(data: [
+    {
+      id: "e4fiie33-d4f3-8ef2-ff0h-0ff3fh724e55",
+      destinationId: "c2dggc11-b2d1-6ef0-dd8f-8dd1df502c33",
+      name: "Eiffel Tower Visit",
+      price: 25.00,
+      duration: 120,
+      description: "Experience the iconic Eiffel Tower.",
+      imageUrl: "https://example.com/eiffel.jpg",
+      createdAt: "2023-01-05T14:00:00Z"
+    },
+    {
+      id: "f5gjjf44-e5g4-9ef3-gg1i-1gg4gi835f66",
+      destinationId: "d3ehhd22-c3e2-7ef1-ee9g-9ee2eg613d44",
+      name: "Shibuya Crossing Experience",
+      price: 0.00,
+      duration: 30,
+      description: "Walk across the busiest intersection in the world.",
+      imageUrl: "https://example.com/shibuya.jpg",
+      createdAt: "2023-01-06T15:00:00Z"
+    }
+  ])
+  itinerary_insertMany(data: [
+    {
+      id: "g6hkkg55-f6h5-0ef4-hh2j-2hh5hj946g77",
+      userId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      name: "Paris Adventure",
+      startDate: "2024-03-10",
+      endDate: "2024-03-15",
+      description: "A fun trip to Paris!",
+      createdAt: "2023-02-01T09:00:00Z",
+      updatedAt: "2023-02-01T09:00:00Z"
+    }
+  ])
+  itineraryActivity_insertMany(data: [
+    {
+      itineraryId: "g6hkkg55-f6h5-0ef4-hh2j-2hh5hj946g77",
+      activityId: "e4fiie33-d4f3-8ef2-ff0h-0ff3fh724e55",
+      scheduledDate: "2024-03-11",
+      scheduledTime: "10:00",
+      notes: "Morning visit to Eiffel Tower."
+    }
+  ])
+  booking_insertMany(data: [
+    {
+      userId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      itineraryId: "g6hkkg55-f6h5-0ef4-hh2j-2hh5hj946g77",
+      bookingDate: "2023-02-05",
+      status: "Confirmed",
+      agentNotes: "Booking confirmed for client Alice Wonderland.",
+      createdAt: "2023-02-05T16:00:00Z",
+      updatedAt: "2023-02-05T16:00:00Z"
+    }
+  ])
+}
