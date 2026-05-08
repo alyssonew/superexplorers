@@ -21,6 +21,27 @@ const ManageExpeditions: React.FC = () => {
   const [destinations, setDestinations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Formata data ISO (2026-10-12) → "12 Out 2026"
+  const formatDateToPtBR = (isoDate: string): string => {
+    if (!isoDate) return '';
+    const [year, month, day] = isoDate.split('-');
+    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
+  };
+
+  // Converte "12 Out 2026" → "2026-10-12" para popular o input type="date"
+  const parsePtBRToISO = (ptDate: string): string => {
+    const months: Record<string, string> = {
+      'Jan':'01','Fev':'02','Mar':'03','Abr':'04','Mai':'05','Jun':'06',
+      'Jul':'07','Ago':'08','Set':'09','Out':'10','Nov':'11','Dez':'12'
+    };
+    const parts = ptDate.split(' ');
+    if (parts.length === 3 && months[parts[1]]) {
+      return `${parts[2]}-${months[parts[1]]}-${parts[0].padStart(2,'0')}`;
+    }
+    return '';
+  };
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExp, setEditingExp] = useState<Expedition | null>(null);
@@ -98,8 +119,8 @@ const ManageExpeditions: React.FC = () => {
       setFormData({
         title: exp.title,
         location: exp.location,
-        startDate: exp.startDate,
-        endDate: exp.endDate,
+        startDate: parsePtBRToISO(exp.startDate),
+        endDate: parsePtBRToISO(exp.endDate),
         description: exp.description,
         imageUrl: exp.imageUrl,
         hotelName: exp.hotelName || '',
@@ -165,7 +186,9 @@ const ManageExpeditions: React.FC = () => {
       const finalHotelImages = [...existingHotelImages, ...uploadedHotelImages];
 
       const finalData = { 
-        ...formData, 
+        ...formData,
+        startDate: formatDateToPtBR(formData.startDate),
+        endDate: formatDateToPtBR(formData.endDate),
         imageUrl: destinationImageUrl,
         hotelImages: finalHotelImages 
       };
@@ -349,11 +372,23 @@ const ManageExpeditions: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-2">Data de Início</label>
-                        <input type="text" required value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} placeholder="Ex: 12 Out 2026" className="w-full p-4 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sky-950" />
+                        <input
+                          type="date"
+                          required
+                          value={formData.startDate}
+                          onChange={e => setFormData({...formData, startDate: e.target.value})}
+                          className="w-full p-4 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sky-950"
+                        />
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-2">Data de Término</label>
-                        <input type="text" required value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} placeholder="Ex: 19 Out 2026" className="w-full p-4 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sky-950" />
+                        <input
+                          type="date"
+                          required
+                          value={formData.endDate}
+                          onChange={e => setFormData({...formData, endDate: e.target.value})}
+                          className="w-full p-4 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sky-950"
+                        />
                       </div>
                     </div>
 

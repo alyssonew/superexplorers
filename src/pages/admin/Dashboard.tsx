@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Users, MapPin, Compass, MessageSquare, TrendingUp, ArrowUpRight, Loader2, Database, X } from 'lucide-react';
+import { Users, MapPin, Compass, MessageSquare, TrendingUp, ArrowUpRight, Loader2, Database, X, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
@@ -13,6 +13,25 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [recentContacts, setRecentContacts] = useState<any[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<any | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteContact = async (contact: any, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!window.confirm(`Tem certeza que deseja apagar a mensagem de "${contact.name}"? Esta ação não pode ser desfeita.`)) return;
+    setDeletingId(contact.id);
+    try {
+      const { error } = await supabase.from('contacts').delete().eq('id', contact.id);
+      if (error) throw error;
+      setRecentContacts(prev => prev.filter(c => c.id !== contact.id));
+      setStats(prev => ({ ...prev, contacts: Math.max(0, prev.contacts - 1) }));
+      if (selectedMessage?.id === contact.id) setSelectedMessage(null);
+    } catch (error) {
+      console.error('Erro ao apagar mensagem:', error);
+      alert('Não foi possível apagar a mensagem. Tente novamente.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -122,14 +141,24 @@ const Dashboard: React.FC = () => {
                     <div className="text-xs text-sky-400">{contact.email}</div>
                   </div>
                 </div>
-                <div className="text-right flex flex-col items-end">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-sky-300">
-                    {new Date(contact.created_at).toLocaleDateString('pt-BR')}
+                <div className="flex items-center gap-3">
+                  <div className="text-right flex flex-col items-end">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-sky-300">
+                      {new Date(contact.created_at).toLocaleDateString('pt-BR')}
+                    </div>
+                    <div className="text-sm text-sky-500 max-w-[180px] truncate">{contact.message}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Ler mensagem completa
+                    </div>
                   </div>
-                  <div className="text-sm text-sky-500 max-w-[200px] truncate">{contact.message}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Ler mensagem completa
-                  </div>
+                  <button
+                    onClick={(e) => handleDeleteContact(contact, e)}
+                    disabled={deletingId === contact.id}
+                    className="p-2 rounded-full text-sky-200 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+                    title="Apagar mensagem"
+                  >
+                    {deletingId === contact.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  </button>
                 </div>
               </motion.div>
             ))}
@@ -218,6 +247,17 @@ const Dashboard: React.FC = () => {
               <p className="text-sky-950 leading-relaxed whitespace-pre-wrap">
                 {selectedMessage.message}
               </p>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-sky-100 flex justify-end">
+              <button
+                onClick={() => handleDeleteContact(selectedMessage)}
+                disabled={deletingId === selectedMessage.id}
+                className="flex items-center gap-2 px-5 py-3 bg-red-50 text-red-500 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+              >
+                {deletingId === selectedMessage.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Apagar Mensagem
+              </button>
             </div>
           </motion.div>
         </div>
