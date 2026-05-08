@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 interface Destination {
   id: string;
@@ -15,6 +16,11 @@ interface Destination {
 const Destinations: React.FC = () => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const goToContact = (destName: string) => {
+    navigate('/contato', { state: { message: `Olá, gostaria de conversar com vocês sobre ${destName}` } });
+  };
 
   useEffect(() => {
     fetchDestinations();
@@ -95,12 +101,18 @@ const Destinations: React.FC = () => {
                     {dest.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <button className="px-8 py-4 border border-white/30 rounded-full text-[10px] font-bold uppercase tracking-widest text-white hover:bg-white hover:text-zinc-900 transition-all">
+                    <button
+                      onClick={() => goToContact(dest.name)}
+                      className="px-8 py-4 border border-white/30 rounded-full text-[10px] font-bold uppercase tracking-widest text-white hover:bg-white hover:text-zinc-900 transition-all"
+                    >
                       Saiba Mais
                     </button>
-                    <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center text-orange-500 transform rotate-[-45deg] group-hover:rotate-0 transition-transform duration-500">
+                    <button
+                      onClick={() => goToContact(dest.name)}
+                      className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center text-orange-500 transform rotate-[-45deg] group-hover:rotate-0 transition-transform duration-500"
+                    >
                       <ArrowRight />
-                    </div>
+                    </button>
                   </div>
                 </div>
               </motion.div>

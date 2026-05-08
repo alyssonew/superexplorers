@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Send, Mail, Phone, MapPin, Loader2, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useLocation } from 'react-router-dom';
 
 const Contact: React.FC = () => {
+  const location = useLocation();
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    const prefilledMessage = (location.state as any)?.message;
+    if (prefilledMessage) {
+      setFormData(prev => ({ ...prev, message: prefilledMessage }));
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
