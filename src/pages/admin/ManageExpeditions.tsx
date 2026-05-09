@@ -168,6 +168,13 @@ const ManageExpeditions: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validação: data final não pode ser anterior à data de início
+    if (formData.startDate && formData.endDate && formData.endDate < formData.startDate) {
+      alert('A data de término não pode ser anterior à data de início.');
+      return;
+    }
+
     setSaving(true);
     
     try {
@@ -386,6 +393,7 @@ const ManageExpeditions: React.FC = () => {
                           type="date"
                           required
                           value={formData.endDate}
+                          min={formData.startDate || undefined}
                           onChange={e => setFormData({...formData, endDate: e.target.value})}
                           className="w-full p-4 bg-sky-50/50 border border-sky-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-sky-950"
                         />
