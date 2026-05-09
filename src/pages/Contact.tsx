@@ -201,7 +201,7 @@ const Contact: React.FC = () => {
                 <textarea
                   required
                   rows={4}
-                  className="w-full bg-white border border-zinc-200 rounded-2xl p-5 text-zinc-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all font-light"
+                  className="w-full bg-white border border-zinc-200 rounded-2xl p-5 text-zinc-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all font-light resize-none"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Conte-nos sobre sua próxima aventura..."
